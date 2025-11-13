@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +8,7 @@ body { margin:0; text-align:center; background:skyblue; font-family:Arial; }
 canvas { background:#87ceeb; display:block; margin:20px auto; border:2px solid #333; }
 button { padding:10px 20px; font-size:16px; margin:5px; cursor:pointer; }
 #shapeMenu { display:none; margin-top:20px; }
+#countdown { font-size: 40px; font-weight:bold; margin-top:20px; }
 </style>
 </head>
 <body>
@@ -23,6 +23,8 @@ button { padding:10px 20px; font-size:16px; margin:5px; cursor:pointer; }
     <button class="shapeBtn" data-shape="circle">Circle</button>
 </div>
 
+<div id="countdown"></div>
+
 <canvas id="gameCanvas" width="400" height="600" style="display:none"></canvas>
 <div id="highScoreDisplay">High Score: 0</div>
 
@@ -32,6 +34,7 @@ const ctx = canvas.getContext("2d");
 const startBtn = document.getElementById("startBtn");
 const shapeMenu = document.getElementById("shapeMenu");
 const shapeButtons = document.querySelectorAll(".shapeBtn");
+const countdownDiv = document.getElementById("countdown");
 const highScoreDiv = document.getElementById("highScoreDisplay");
 
 let plane = { x: 80, y: 300, vy: 0 };
@@ -43,10 +46,10 @@ highScoreDiv.textContent = "High Score: " + highScore;
 
 let playerShape = "plane";
 
-// --- Even faster game settings ---
-const gravity = 0.6;   // faster falling
-const flap = -8;        // stronger flap
-const pipeSpeed = 3.5;  // faster pipes
+// --- Faster gameplay ---
+const gravity = 0.7;   // faster drop
+const flap = -8;        // flap strength
+const pipeSpeed = 3.7;  // slightly faster pipes
 
 // Draw shapes
 function drawPlane() {
@@ -116,6 +119,7 @@ function checkCollision() {
     return false;
 }
 
+// Game loop
 function update() {
     if(!game) return;
 
@@ -151,6 +155,7 @@ function update() {
         plane.vy = 0;
         canvas.style.display = "none";
         startBtn.style.display = "inline-block";
+        countdownDiv.textContent = "";
         return;
     }
 
@@ -164,14 +169,26 @@ startBtn.onclick = () => {
     shapeMenu.style.display = "block";
 }
 
-// Choose shape and start game
+// Choose shape and start countdown
 shapeButtons.forEach(btn => {
     btn.onclick = () => {
         playerShape = btn.getAttribute("data-shape");
         shapeMenu.style.display = "none";
-        canvas.style.display = "block";
-        game = true;
-        update();
+        countdownDiv.textContent = "3";
+        let count = 3;
+
+        const timer = setInterval(() => {
+            count--;
+            if(count > 0){
+                countdownDiv.textContent = count;
+            } else {
+                clearInterval(timer);
+                countdownDiv.textContent = "";
+                canvas.style.display = "block";
+                game = true;
+                update();
+            }
+        }, 1000);
     }
 });
 
@@ -184,3 +201,4 @@ document.addEventListener("mousedown", () => { if(game) plane.vy = flap; });
 </script>
 </body>
 </html>
+
